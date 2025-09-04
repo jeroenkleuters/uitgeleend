@@ -1,24 +1,43 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import userRoutes from "./routes/userRoutes";
-import itemRoutes from "./routes/itemRoutes";
-import { connectDB } from "./config/db";
+import express from "express"
+import mongoose from "mongoose"
+import dotenv from "dotenv"
+import cors from "cors"
 
-dotenv.config();
+// Routes
+import userRoutes from "./routes/userRoutes"
+import itemRoutes from "./routes/itemRoutes"
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+dotenv.config()
 
-const PORT = process.env.PORT || 5000;
+const app = express()
+const PORT = process.env.PORT || 5000
+const MONGO_URI = process.env.MONGO_URI || ""
 
-connectDB(process.env.MONGO_URI || "");
+// Middleware
+app.use(cors({ origin: "http://localhost:5173" })) // frontend toegang
+app.use(express.json())
 
-app.use("/api/users", userRoutes);
-app.use("/api/items", itemRoutes);
+// Root route
+app.get("/", (req, res) => {
+  res.send("📚 Uitgeleend backend is running!")
+})
 
-app.get("/", (req, res) => res.send("API running for Uitgeleend 📚"));
+// API routes
+app.use("/api/users", userRoutes)
+app.use("/api/items", itemRoutes)
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-// End of file
+// Catch-all 404
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" })
+})
+
+// Connect MongoDB
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err))
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+})
