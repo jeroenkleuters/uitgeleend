@@ -21,3 +21,4 @@ app.use("/api/items", itemRoutes);
 app.get("/", (req, res) => res.send("API running for Uitgeleend 📚"));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// End of file

@@ -19,6 +19,15 @@ export const createItem = async (name: string, description: string) => {
   return res.json();
 };
 
+export const createUser = async (name: string, email: string) => {
+  const res = await fetch(`${BASE_URL}/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email }),
+  });
+  return res.json();
+};
+
 export const borrowItem = async (itemId: string, userId: string) => {
   const res = await fetch(`${BASE_URL}/items/borrow`, {
     method: "POST",

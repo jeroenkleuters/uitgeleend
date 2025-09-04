@@ -13,6 +13,9 @@ export const getUsers = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { name, email } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required" });
+    }
     const user = new User({ name, email });
     await user.save();
     res.status(201).json(user);

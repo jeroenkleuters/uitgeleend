@@ -31,7 +31,7 @@ export const borrowItem = async (req: Request, res: Response) => {
 
     item.borrowedBy = userId;
     item.borrowedAt = new Date();
-    item.returnedAt = null;
+    item.returnedAt = new Date();
 
     await item.save();
     res.json(item);

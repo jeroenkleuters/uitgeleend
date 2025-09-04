@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../api/api";
 
-export default function UserList() {
+export default function UserList({ onSelect }: { onSelect: (id: string) => void }) {
   const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
@@ -10,12 +10,21 @@ export default function UserList() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2">Users</h2>
-      <ul className="list-disc pl-5">
+      <h2 className="text-xl font-bold mb-2">Selecteer gebruiker</h2>
+      <select
+        className="border p-1"
+        onChange={e => onSelect(e.target.value)}
+        defaultValue=""
+      >
+        <option value="" disabled>
+          Kies een gebruiker...
+        </option>
         {users.map(user => (
-          <li key={user._id}>{user.name} ({user.email})</li>
+          <option key={user._id} value={user._id}>
+            {user.name} ({user.email})
+          </option>
         ))}
-      </ul>
+      </select>
     </div>
   );
 }
