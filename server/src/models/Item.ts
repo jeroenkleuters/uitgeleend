@@ -1,19 +1,18 @@
-import { Schema, model, Types, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose"
 
-interface IItem extends Document {
-  name: string;
-  description?: string;
-  borrowedBy?: Types.ObjectId | null;
-  borrowedAt?: Date | null;
-  returnedAt?: Date | null;
+export interface IItem extends Document {
+  title: string
+  borrowedBy: Types.ObjectId | null
+  borrowedAt: Date | null
 }
 
-const itemSchema = new Schema<IItem>({
-  name: { type: String, required: true },
-  description: { type: String },
-  borrowedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
-  borrowedAt: { type: Date, default: null },
-  returnedAt: { type: Date, default: null },
-});
+const itemSchema = new Schema<IItem>(
+  {
+    title: { type: String, required: true },
+    borrowedBy: { type: Types.ObjectId, ref: "User", default: null },
+    borrowedAt: { type: Date, default: null },
+  },
+  { timestamps: true }
+)
 
-export default model<IItem>("Item", itemSchema);
+export const Item = model<IItem>("Item", itemSchema)

@@ -40,17 +40,13 @@ Server
 
 npm run dev → Start backend in watch-modus (nodemon + ts-node)
 
-npm run build → Compileert TypeScript naar dist/
-
 npm start → Draait gecompileerde versie
 
 Client
 
 npm run dev → Start frontend in dev-modus
-
-npm run build → Bouwt productieversie
-
 npm run preview → Serve productiebuild lokaal
+build naar productie loopt via deploy.yml
 
 🛠️ Stack
 

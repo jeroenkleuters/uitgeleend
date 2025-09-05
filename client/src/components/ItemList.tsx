@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getItems, borrowItem, returnItem } from "@/api/api"
+import { getItems, getUserById, borrowItem, returnItem } from "@/api/api"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -17,11 +17,30 @@ interface ItemListProps {
 export default function ItemList({ selectedUserId }: ItemListProps) {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
+  const [borrowerNames, setBorrowerNames] = useState<{ [key: string]: string }>({})
 
   const fetchItems = async () => {
     try {
       const data = await getItems()
       setItems(data)
+      // Fetch borrower names for borrowed items
+      const borrowedItems = data.filter((item: Item) => item.borrowedBy)
+      const names: { [key: string]: string } = {}
+      await Promise.all(
+        borrowedItems.map(async (item: Item) => {
+          if (item.borrowedBy) {
+            try {
+              debugger;
+                console.log("Fetching user by ID:", selectedUserId as string);
+              const user = await getUserById(selectedUserId as string)
+              names[item._id] = user?.name || "onbekend"
+            } catch {
+              names[item._id] = "onbekend"
+            }
+          }
+        })
+      )
+      setBorrowerNames(names)
     } catch (err) {
       console.error("Error fetching items:", err)
     } finally {
@@ -57,10 +76,11 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
             {item.borrowedBy ? (
               <>
                 <p className="text-sm text-red-500">
-                  Uitgeleend op{" "}
+                  <span>Uitgeleend op{" "}
                   {item.borrowedAt
                     ? new Date(item.borrowedAt).toLocaleDateString()
-                    : "onbekend"}
+                    : "onbekend"}</span>
+                    <span> aan {borrowerNames[item._id] || "onbekend"}</span>
                 </p>
                 <Button
                   className="mt-2"
