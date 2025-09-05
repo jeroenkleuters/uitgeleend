@@ -10,7 +10,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/uitgeleend/", // GitHub Pages repo naam
+  base: "./", // relatieve paden voor assets
   build: {
     outDir: "docs",      // output naar docs/
   },
