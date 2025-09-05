@@ -10,5 +10,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"), // 🔹 import alias
     },
   },
-  base: "/uitgeleend/", // GitHub repo naam
+  build: {
+    outDir: 'docs', // ✅ use docs instead of dist
+  },
+  base: "/uitgeleend/", // GitHub repo naam,
+  
 })
+
