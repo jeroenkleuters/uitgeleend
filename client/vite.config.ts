@@ -10,4 +10,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"), // 🔹 import alias
     },
   },
+  base: "/uitgeleend/", // GitHub repo naam
 })
