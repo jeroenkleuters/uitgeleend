@@ -1,20 +1,17 @@
+// client/vite.config.ts
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import path from "path"
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"), // 🔹 import alias
+      "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: "/uitgeleend/", // GitHub Pages repo naam
   build: {
-    outDir: 'docs', // ✅ use docs instead of dist
+    outDir: "docs",      // output naar docs/
   },
-  base: './', // belangrijk voor relatieve paden
-  // base: "/uitgeleend/", // ✅ set base path for GitHub Pages
-  
 })
-

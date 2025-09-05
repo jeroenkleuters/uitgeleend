@@ -3,14 +3,14 @@ name: Build & Deploy Frontend to GitHub Pages
 on:
   push:
     branches:
-      - main  # of master, afhankelijk van jouw branch
+      - main  # of master
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
+      # 1️⃣ Checkout repository
       - uses: actions/checkout@v4
 
       # 2️⃣ Setup Node.js
@@ -22,13 +22,17 @@ jobs:
           cache-dependency-path: client/package-lock.json
 
       # 3️⃣ Install dependencies & build frontend
-      - name: Install & Build Frontend
+      - name: Install & Build
         working-directory: client
         run: |
           npm ci
           npm run build
 
-      # 4️⃣ Deploy to GitHub Pages
+      # 4️⃣ Disable Jekyll for GitHub Pages
+      - name: Disable Jekyll
+        run: touch client/docs/.nojekyll
+
+      # 5️⃣ Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
