@@ -10,17 +10,19 @@ export default function App() {
       <h1 className="text-3xl font-bold mb-6">📚 Uitgeleend</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl mx-auto">
+        {/* Items */}
+        <div>
+          <h2 className="text-xl font-semibold mb-3">Items</h2>
+          <ItemList selectedUserId={selectedUserId} />
+        </div>
+        
         {/* Users */}
         <div>
           <h2 className="text-xl font-semibold mb-3">Gebruikers</h2>
           <UserList onSelect={setSelectedUserId} />
         </div>
 
-        {/* Items */}
-        <div>
-          <h2 className="text-xl font-semibold mb-3">Items</h2>
-          <ItemList selectedUserId={selectedUserId} />
-        </div>
+        
       </div>
     </div>
   )
