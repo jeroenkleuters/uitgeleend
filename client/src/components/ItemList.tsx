@@ -1,48 +1,90 @@
-import { useEffect, useState } from "react";
-import { getItems, borrowItem, returnItem } from "../api/api";
+import { useEffect, useState } from "react"
+import { getItems, borrowItem, returnItem } from "@/api/api"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-export default function ItemList({ selectedUserId }: { selectedUserId?: string }) {
-  const [items, setItems] = useState<any[]>([]);
+interface Item {
+  _id: string
+  name: string
+  borrowedBy?: string
+  borrowedAt?: string
+}
 
-  const loadItems = () => getItems().then(setItems);
+interface ItemListProps {
+  selectedUserId?: string
+}
 
-  useEffect(() => { loadItems(); }, []);
+export default function ItemList({ selectedUserId }: ItemListProps) {
+  const [items, setItems] = useState<Item[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleBorrow = (itemId: string) => {
-    if (!selectedUserId) return alert("Selecteer eerst een gebruiker!");
-    borrowItem(itemId, selectedUserId).then(loadItems);
-  };
+  const fetchItems = async () => {
+    try {
+      const data = await getItems()
+      setItems(data)
+    } catch (err) {
+      console.error("Error fetching items:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const handleReturn = (itemId: string) => {
-    returnItem(itemId).then(loadItems);
-  };
+  useEffect(() => {
+    fetchItems()
+  }, [])
+
+  const handleBorrow = async (itemId: string) => {
+    if (!selectedUserId) return
+    await borrowItem(itemId, selectedUserId)
+    fetchItems()
+  }
+
+  const handleReturn = async (itemId: string) => {
+    await returnItem(itemId)
+    fetchItems()
+  }
+
+  if (loading) return <p>⏳ Items laden...</p>
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-2">Items</h2>
-      <ul className="list-disc pl-5">
-        {items.map(item => (
-          <li key={item._id} className="mb-1">
-            {item.name} - {item.borrowedBy ? `geleend door ${item.borrowedBy.name}` : "beschikbaar"}
-            {!item.borrowedBy && selectedUserId && (
-              <button
-                className="ml-2 px-2 py-1 bg-blue-500 text-white rounded"
-                onClick={() => handleBorrow(item._id)}
-              >
-                Lenen
-              </button>
+    <div className="grid gap-3">
+      {items.map((item) => (
+        <Card key={item._id}>
+          <CardHeader>
+            <CardTitle>{item.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {item.borrowedBy ? (
+              <>
+                <p className="text-sm text-red-500">
+                  Uitgeleend op{" "}
+                  {item.borrowedAt
+                    ? new Date(item.borrowedAt).toLocaleDateString()
+                    : "onbekend"}
+                </p>
+                <Button
+                  className="mt-2"
+                  variant="destructive"
+                  onClick={() => handleReturn(item._id)}
+                >
+                  Terugbrengen
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-green-500">Beschikbaar</p>
+                <Button
+                  className="mt-2"
+                  disabled={!selectedUserId}
+                  onClick={() => handleBorrow(item._id)}
+                >
+                  Uitlenen
+                </Button>
+              </>
             )}
-            {item.borrowedBy && (
-              <button
-                className="ml-2 px-2 py-1 bg-green-500 text-white rounded"
-                onClick={() => handleReturn(item._id)}
-              >
-                Terugbrengen
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+          </CardContent>
+        </Card>
+      ))}
     </div>
-  );
+  )
 }

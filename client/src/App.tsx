@@ -1,28 +1,27 @@
-import { useState } from "react";
-import UserList from "./components/UserList";
-import ItemList from "./components/ItemList";
-import AddItem from "./components/AddItem";
-import AddUser from "./components/AddUser";
+import { useState } from "react"
+import UserList from "@/components/UserList"
+import ItemList from "@/components/ItemList"
 
-function App() {
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
-  const [refresh, setRefresh] = useState(false);
-
-  const triggerRefresh = () => setRefresh(!refresh);
+export default function App() {
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>()
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-4">Uitgeleend 📚</h1>
+    <div className="min-h-screen bg-background text-foreground p-6">
+      <h1 className="text-3xl font-bold mb-6">📚 Uitgeleend</h1>
 
-      <h2 className="text-lg font-semibold mb-2">Gebruikers</h2>
-      <AddUser onAdd={triggerRefresh} />
-      <UserList onSelect={setSelectedUserId} key={refresh.toString()} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl mx-auto">
+        {/* Users */}
+        <div>
+          <h2 className="text-xl font-semibold mb-3">Gebruikers</h2>
+          <UserList onSelect={setSelectedUserId} />
+        </div>
 
-      <h2 className="text-lg font-semibold mt-6 mb-2">Items</h2>
-      <AddItem onAdd={triggerRefresh} />
-      <ItemList selectedUserId={selectedUserId} key={refresh.toString()} />
+        {/* Items */}
+        <div>
+          <h2 className="text-xl font-semibold mb-3">Items</h2>
+          <ItemList selectedUserId={selectedUserId} />
+        </div>
+      </div>
     </div>
-  );
+  )
 }
-
-export default App;
