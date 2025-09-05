@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getItems, getUserById, borrowItem, returnItem } from "@/api/api"
+import { getItems, borrowItem, returnItem } from "@/api/api"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Book, Music, Disc, Video, Shirt, Gamepad, Box } from "lucide-react"
@@ -14,6 +14,15 @@ const typeIcons: Record<string, JSX.Element> = {
   anders: <Box className="w-5 h-5 text-gray-500" />,
 }
 
+const typeColors: Record<string, string> = {
+  boek: "bg-blue-100 text-blue-700",
+  lp: "bg-purple-100 text-purple-700",
+  cd: "bg-pink-100 text-pink-700",
+  DVD: "bg-red-100 text-red-700",
+  kledingstuk: "bg-green-100 text-green-700",
+  spel: "bg-yellow-100 text-yellow-700",
+  anders: "bg-gray-100 text-gray-700",
+}
 
 interface Item {
   _id: string
@@ -43,24 +52,7 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
     try {
       const data = await getItems()
       setItems(data)
-      // // Fetch borrower names for borrowed items
-      // const borrowedItems = data.filter((item: Item) => item.borrowedBy)
-      // const names: { [key: string]: string } = {}
-      // await Promise.all(
-      //   borrowedItems.map(async (item: Item) => {
-      //     if (item.borrowedBy) {
-      //       try {
-      //         debugger;
-      //           console.log("Fetching user by ID:", selectedUserId as string);
-      //         const user = await getUserById(selectedUserId as string)
-      //         names[item._id] = user?.name || "onbekend"
-      //       } catch {
-      //         names[item._id] = "onbekend"
-      //       }
-      //     }
-      //   })
-      // )
-      // setBorrowerNames(names)
+    
     } catch (err) {
       console.error("Error fetching items:", err)
     } finally {

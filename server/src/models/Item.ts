@@ -13,7 +13,7 @@ const itemSchema = new Schema<IItem>(
      type: {
       type: String,
       required: true,
-      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel"], // dropdown opties
+      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel", "anders"], // dropdown opties
     },
     borrowedBy: { type: Types.ObjectId, ref: "User", default: null },
     borrowedAt: { type: Date, default: null },
