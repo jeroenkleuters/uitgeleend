@@ -13,7 +13,8 @@ export default defineConfig({
   build: {
     outDir: 'docs', // ✅ use docs instead of dist
   },
-  base: "/uitgeleend/", // GitHub repo naam,
+  // base: './', // belangrijk voor relatieve paden
+  base: "/uitgeleend/", // ✅ set base path for GitHub Pages
   
 })
 
