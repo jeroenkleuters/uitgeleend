@@ -111,13 +111,13 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
                 >
                   Terugbrengen
                 </Button>
-                <Button
+                {/* <Button
                   className="mt-2"
                   variant="destructive"
                   // onClick={() => handleReturn(item._id)}
                 >
                   Terugvragen
-                </Button>
+                </Button> */}
               </>
             ) : (
               <>
