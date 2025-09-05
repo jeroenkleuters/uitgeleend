@@ -6,8 +6,14 @@ import { Button } from "@/components/ui/button"
 interface Item {
   _id: string
   name: string
-  borrowedBy?: string
+  borrowedBy?: BorrowedBy | null
   borrowedAt?: string
+}
+
+interface BorrowedBy {
+  _id: string
+  name: string
+  email: string
 }
 
 interface ItemListProps {
@@ -23,24 +29,24 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
     try {
       const data = await getItems()
       setItems(data)
-      // Fetch borrower names for borrowed items
-      const borrowedItems = data.filter((item: Item) => item.borrowedBy)
-      const names: { [key: string]: string } = {}
-      await Promise.all(
-        borrowedItems.map(async (item: Item) => {
-          if (item.borrowedBy) {
-            try {
-              debugger;
-                console.log("Fetching user by ID:", selectedUserId as string);
-              const user = await getUserById(selectedUserId as string)
-              names[item._id] = user?.name || "onbekend"
-            } catch {
-              names[item._id] = "onbekend"
-            }
-          }
-        })
-      )
-      setBorrowerNames(names)
+      // // Fetch borrower names for borrowed items
+      // const borrowedItems = data.filter((item: Item) => item.borrowedBy)
+      // const names: { [key: string]: string } = {}
+      // await Promise.all(
+      //   borrowedItems.map(async (item: Item) => {
+      //     if (item.borrowedBy) {
+      //       try {
+      //         debugger;
+      //           console.log("Fetching user by ID:", selectedUserId as string);
+      //         const user = await getUserById(selectedUserId as string)
+      //         names[item._id] = user?.name || "onbekend"
+      //       } catch {
+      //         names[item._id] = "onbekend"
+      //       }
+      //     }
+      //   })
+      // )
+      // setBorrowerNames(names)
     } catch (err) {
       console.error("Error fetching items:", err)
     } finally {
@@ -80,7 +86,7 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
                   {item.borrowedAt
                     ? new Date(item.borrowedAt).toLocaleDateString()
                     : "onbekend"}</span>
-                    <span> aan {borrowerNames[item._id] || "onbekend"}</span>
+                    <span> aan {item.borrowedBy.name || "onbekend"}</span>
                 </p>
                 <Button
                   className="mt-2"
