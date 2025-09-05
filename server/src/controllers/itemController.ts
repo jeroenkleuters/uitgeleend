@@ -30,8 +30,8 @@ export const getItemById = async (req: Request, res: Response) => {
 // ✅ Nieuw item toevoegen
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title } = req.body
-    const item = new Item({ title })
+    const { title, type } = req.body
+    const item = new Item({ title, type })
     await item.save()
     res.status(201).json(item)
   } catch (err) {
