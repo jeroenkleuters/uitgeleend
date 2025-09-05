@@ -6,6 +6,12 @@ export const getUsers = async () => {
   return res.json();
 };
 
+export const getUserById = async (userId: string) => {
+  console.log("Fetching user by ID:", userId);
+  const res = await fetch(`${BASE_URL}/users/${userId}`);
+  return res.json();
+};
+
 export const getItems = async () => {
   const res = await fetch(`${BASE_URL}/items`);
   return res.json();
