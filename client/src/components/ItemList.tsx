@@ -26,7 +26,7 @@ const typeColors: Record<string, string> = {
 
 interface Item {
   _id: string
-  name: string
+  title: string
   type: string
   description?: string
   borrowedBy?: BorrowedBy | null
@@ -84,7 +84,7 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {typeIcons[item.type] || typeIcons["boek"]}
-              {item.name} 
+              {item.title} 
             </CardTitle>            
           </CardHeader>
           <CardContent>
