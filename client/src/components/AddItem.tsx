@@ -4,6 +4,7 @@ import { createItem } from "../api/api"; // zelfde api as in ItemsPage
 import UserSelect from "./UserSelect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import StarRating from "@/components/ui/StarRating";
 
 /**
  * onItemAdded kan een async functie zijn (zoals fetchItems in ItemsPage)
@@ -16,6 +17,7 @@ export default function AddItem({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState(""); // verplicht: controle bij submit
+  const [rating, setRating] = useState(0); // hier sla je rating op
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +25,7 @@ export default function AddItem({
     setTitle("");
     setDescription("");
     setType("");
+    setRating(0);
     setSelectedUser(null);
   };
 
@@ -35,11 +38,13 @@ export default function AddItem({
     }
 
     setLoading(true);
+
     try {
       await createItem({
         title,
         description,
         type,
+        rating,
         borrowedBy: selectedUser ?? null,
       });
 
@@ -78,6 +83,15 @@ export default function AddItem({
           rows={3}
         />
       </div>
+
+      <div className="flex items-center space-x-2">
+        <span>Rating:</span>
+        <StarRating
+          initialValue={rating}
+          onChange={(val) => setRating(val)}
+        />
+      </div>
+
 
       <div>
         <label className="block text-sm font-medium mb-1">Type</label>
