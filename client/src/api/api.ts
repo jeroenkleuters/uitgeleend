@@ -37,7 +37,7 @@ export const getItems = async () => {
  * createItem payload: { title, description?, type, borrowedBy? }
  * borrowedBy is optional (userId) — backend zal borrowedAt vullen als borrowedBy is gegeven
  */
-export const createItem = async (payload: {
+export const createItem = async (item: {
   title: string;
   description?: string;
   type: string;
@@ -46,9 +46,9 @@ export const createItem = async (payload: {
   const res = await fetch(`${BASE_URL}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(item),
   });
-  return handleRes(res);
+  return res.json();
 };
 
 /**
