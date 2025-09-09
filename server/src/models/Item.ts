@@ -3,6 +3,7 @@ import { Schema, model, Document, Types } from "mongoose"
 export interface IItem extends Document {
   title: string
   type: string
+  description: string
   borrowedBy: Types.ObjectId | null
   borrowedAt: Date | null
 }
@@ -10,12 +11,17 @@ export interface IItem extends Document {
 const itemSchema = new Schema<IItem>(
   {
     title: { type: String, required: true },
-     type: {
+
+    description: { type: String, default: "" },
+
+    type: {
       type: String,
       required: true,
-      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel"], // dropdown opties
+      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel", "gereedschap", "anders"], // dropdown opties
     },
-    borrowedBy: { type: Types.ObjectId, ref: "User", default: null },
+
+    borrowedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+
     borrowedAt: { type: Date, default: null },
   },
   { timestamps: true }

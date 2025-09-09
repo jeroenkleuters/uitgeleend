@@ -6,7 +6,7 @@ import { User } from "../models/User"
 export const getItems = async (req: Request, res: Response) => {
   try {
     const items = await Item.find()
-      .populate("borrowedBy", "name email") // alleen user naam + email
+      .populate("borrowedBy", "name description email") // alleen user naam + email
       .exec()
     res.json(items)
   } catch (err) {
@@ -18,7 +18,7 @@ export const getItems = async (req: Request, res: Response) => {
 export const getItemById = async (req: Request, res: Response) => {
   try {
     const item = await Item.findById(req.params.id)
-      .populate("borrowedBy", "name email")
+      .populate("borrowedBy", "name description email")
       .exec()
     if (!item) return res.status(404).json({ message: "Item not found" })
     res.json(item)
@@ -27,13 +27,33 @@ export const getItemById = async (req: Request, res: Response) => {
   }
 }
 
-// ✅ Nieuw item toevoegen
+// ✅ Nieuw item toevoegen (met optioneel uitlenen)
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title, type } = req.body
-    const item = new Item({ title, type })
+    const { title, type, description, borrowedBy } = req.body
+
+    let userId = null
+
+    if (borrowedBy) {
+      // check of de user bestaat
+      const user = await User.findById(borrowedBy).exec()
+      if (!user) {
+        return res.status(404).json({ message: "User not found" })
+      }
+      userId = user._id
+    }
+
+    const item = new Item({
+      title,
+      type,
+      description,
+      borrowedBy: userId,
+      borrowedAt: userId ? new Date() : null,
+    })
+
     await item.save()
-    res.status(201).json(item)
+    const populatedItem = await item.populate("borrowedBy", "name email")
+    res.status(201).json(populatedItem)
   } catch (err) {
     res.status(400).json({ message: "Error creating item", error: err })
   }
