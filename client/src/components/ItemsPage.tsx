@@ -1,44 +1,39 @@
-import { useEffect, useState } from "react"
-import AddItem from "./AddItem"
-import ItemList from "./ItemList"
-import { getItems } from "../api/api"
+// client/src/components/ItemsPage.tsx
+import { useEffect, useState } from "react";
+import { getItems } from "../api/api";
+import AddItem from "./AddItem";
+import ItemList from "./ItemList";
 
-interface Item {
-  _id: string
-  title: string
-  type: string
-  borrowedBy?: {
-    _id: string
-    name: string
-    email: string
-  } | null
-}
-
-const ItemsPage = () => {
-  const [items, setItems] = useState<Item[]>([])
+export default function ItemsPage() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchItems = async () => {
+    setLoading(true);
     try {
-      const data = await getItems()
-      setItems(data)
+      const data = await getItems();
+      // Zorg dat altijd een array wordt gezet
+      setItems(Array.isArray(data) ? data : data.items || []);
     } catch (err) {
-      console.error("Error fetching items:", err)
+      console.error("Error fetching items:", err);
+      setItems([]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchItems()
-  }, [])
+    fetchItems();
+  }, []);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Formulier om nieuw item toe te voegen */}
+    <div className="space-y-6">
       <AddItem onItemAdded={fetchItems} />
-
-      {/* Lijst met items */}
-      <ItemList />
+      {loading ? (
+        <p>Bezig met laden...</p>
+      ) : (
+        <ItemList items={items} onRefresh={fetchItems} />
+      )}
     </div>
-  )
+  );
 }
-
-export default ItemsPage

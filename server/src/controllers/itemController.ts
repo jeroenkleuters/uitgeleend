@@ -30,34 +30,36 @@ export const getItemById = async (req: Request, res: Response) => {
 // ✅ Nieuw item toevoegen (met optioneel uitlenen)
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title, type, description, borrowedBy } = req.body
+    const { title, description, type, borrowedBy } = req.body;
 
-    let userId = null
-
-    if (borrowedBy) {
-      // check of de user bestaat
-      const user = await User.findById(borrowedBy).exec()
-      if (!user) {
-        return res.status(404).json({ message: "User not found" })
-      }
-      userId = user._id
+    if (!title || !type) {
+      return res.status(400).json({ message: "Titel en type zijn verplicht" });
     }
 
-    const item = new Item({
+    const newItemData: any = {
       title,
       type,
-      description,
-      borrowedBy: userId,
-      borrowedAt: userId ? new Date() : null,
-    })
+      description: description || "",
+    };
 
-    await item.save()
-    const populatedItem = await item.populate("borrowedBy", "name email")
-    res.status(201).json(populatedItem)
+    // borrowedBy optioneel meegeven
+    if (borrowedBy) {
+      newItemData.borrowedBy = borrowedBy;
+      newItemData.borrowedAt = new Date();
+    }
+
+    const item = new Item(newItemData);
+    await item.save();
+
+    // borrowedBy meteen populaten voor frontend gemak
+    const populatedItem = await item.populate("borrowedBy", "name email");
+
+    res.status(201).json(populatedItem);
   } catch (err) {
-    res.status(400).json({ message: "Error creating item", error: err })
+    console.error("❌ Error creating item:", err);
+    res.status(400).json({ message: "Error creating item", error: err });
   }
-}
+};
 
 // ✅ Item bijwerken
 export const updateItem = async (req: Request, res: Response) => {

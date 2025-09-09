@@ -1,131 +1,130 @@
-import { useEffect, useState } from "react"
-import { getItems, borrowItem, returnItem } from "@/api/api"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Book, Music, Disc, Video, Shirt, Gamepad, Box } from "lucide-react"
-
-const typeIcons: Record<string, JSX.Element> = {
-  boek: <Book className="w-5 h-5 text-blue-500" />,
-  lp: <Music className="w-5 h-5 text-purple-500" />,
-  cd: <Disc className="w-5 h-5 text-pink-500" />,
-  DVD: <Video className="w-5 h-5 text-red-500" />,
-  kledingstuk: <Shirt className="w-5 h-5 text-green-500" />,
-  spel: <Gamepad className="w-5 h-5 text-yellow-500" />,
-  anders: <Box className="w-5 h-5 text-gray-500" />,
-}
-
-const typeColors: Record<string, string> = {
-  boek: "bg-blue-100 text-blue-700",
-  lp: "bg-purple-100 text-purple-700",
-  cd: "bg-pink-100 text-pink-700",
-  DVD: "bg-red-100 text-red-700",
-  kledingstuk: "bg-green-100 text-green-700",
-  spel: "bg-yellow-100 text-yellow-700",
-  anders: "bg-gray-100 text-gray-700",
-}
+// client/src/components/ItemList.tsx
+import { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { borrowItem, returnItem } from "../api/api";
+import {
+  BookUser,
+  Disc,
+  Shirt,
+  Gamepad2,
+  FileQuestion,
+  Film,
+  Wrench,
+} from "lucide-react";
 
 interface Item {
-  _id: string
-  title: string
-  type: string
-  description?: string
-  borrowedBy?: BorrowedBy | null
-  borrowedAt?: string
-}
-
-interface BorrowedBy {
-  _id: string
-  name: string
-  email: string
+  _id: string;
+  title: string;
+  description?: string;
+  type: string;
+  borrowedBy?: { _id: string; name: string; email: string } | null;
+  borrowedAt?: string | null;
 }
 
 interface ItemListProps {
-  selectedUserId?: string
+  items: Item[];
+  onRefresh?: () => Promise<void> | void;
 }
 
-export default function ItemList({ selectedUserId }: ItemListProps) {
-  const [items, setItems] = useState<Item[]>([])
-  const [loading, setLoading] = useState(true)
-  const [borrowerNames, setBorrowerNames] = useState<{ [key: string]: string }>({})
+const typeIcons: Record<string, JSX.Element> = {
+  boek: <BookUser className="inline w-6 h-6 mr-2" />,
+  cd: <Disc className="inline w-6 h-6 mr-2" />,
+  lp: <Disc className="inline w-6 h-6 mr-2" />, // ✅ LP = Disc
+  dvd: <Film className="inline w-6 h-6 mr-2" />,
+  kledingstuk: <Shirt className="inline w-6 h-6 mr-2" />,
+  spel: <Gamepad2 className="inline w-6 h-6 mr-2" />,
+  gereedschap: <Wrench className="inline w-6 h-6 mr-2" />,
+  anders: <FileQuestion className="inline w-6 h-6 mr-2" />,
+};
 
-  const fetchItems = async () => {
-    try {
-      const data = await getItems()
-      setItems(data)
-    
-    } catch (err) {
-      console.error("Error fetching items:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchItems()
-  }, [])
+export default function ItemList({ items, onRefresh }: ItemListProps) {
+  const [loadingItem, setLoadingItem] = useState<string | null>(null);
 
   const handleBorrow = async (itemId: string) => {
-    if (!selectedUserId) return
-    await borrowItem(itemId, selectedUserId)
-    fetchItems()
-  }
+    if (!confirm("Weet je zeker dat je dit item wilt uitlenen?")) return;
+    setLoadingItem(itemId);
+    try {
+      // ⚠️ tijdelijk hardcoded testUserId – later ComboBox toevoegen
+      const testUserId = "66f7d41a2d8b5e9e3c123456";
+      await borrowItem(itemId, testUserId);
+      if (onRefresh) await onRefresh();
+    } catch (err) {
+      console.error("Error borrowing item:", err);
+    } finally {
+      setLoadingItem(null);
+    }
+  };
 
   const handleReturn = async (itemId: string) => {
-    await returnItem(itemId)
-    fetchItems()
+    if (!confirm("Item terugbrengen?")) return;
+    setLoadingItem(itemId);
+    try {
+      await returnItem(itemId);
+      if (onRefresh) await onRefresh();
+    } catch (err) {
+      console.error("Error returning item:", err);
+    } finally {
+      setLoadingItem(null);
+    }
+  };
+
+  if (!items || items.length === 0) {
+    return <p className="text-gray-500">Geen items gevonden.</p>;
   }
 
-  if (loading) return <p>⏳ Items laden...</p>
-
   return (
-    <div className="grid gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {items.map((item) => (
-        <Card key={item._id}>
+        <Card key={item._id} className="shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {typeIcons[item.type] || typeIcons["boek"]}
-              {item.title} 
-            </CardTitle>            
+            <CardTitle className="flex items-center align-left">
+              {typeIcons[item.type] || typeIcons["anders"]} {item.title} 
+            </CardTitle>
           </CardHeader>
           <CardContent>
+            {item.description && (
+              <p className="text-sm text-gray-600">{item.description}</p>
+            )}
             {item.borrowedBy ? (
               <>
-                <p className="text-sm">Dit {item.description} is op &nbsp;
-                  {item.borrowedAt
-                    ? new Date(item.borrowedAt).toLocaleDateString()
-                    : "onbekend"}
-                    <span> uitgeleend aan {item.borrowedBy.name || "onbekend"}</span>
+                <p className="text-sm">
+                  Uitgeleend aan{" "}
+                  <strong>{item.borrowedBy.name || "onbekend"}</strong>{" "}
+                  {item.borrowedAt &&
+                    `op ${new Date(item.borrowedAt).toLocaleDateString()}`}
                 </p>
                 <Button
                   className="mt-2 gap-2"
                   variant="destructive"
+                  disabled={loadingItem === item._id}
                   onClick={() => handleReturn(item._id)}
                 >
-                  Terugbrengen
+                  {loadingItem === item._id ? "Bezig..." : "Terugbrengen"}
                 </Button>
-                {/* <Button
-                  className="mt-2"
-                  variant="destructive"
-                  // onClick={() => handleReturn(item._id)}
-                >
-                  Terugvragen
-                </Button> */}
               </>
             ) : (
               <>
                 <p className="text-sm text-green-500">Beschikbaar</p>
                 <Button
                   className="mt-2"
-                  disabled={!selectedUserId}
+                  variant="destructive"
+                  disabled={loadingItem === item._id}
                   onClick={() => handleBorrow(item._id)}
                 >
-                  Uitlenen
+                  {loadingItem === item._id ? "Bezig..." : "Uitlenen"}
                 </Button>
               </>
             )}
           </CardContent>
         </Card>
       ))}
+
+      {onRefresh && (
+        <div className="col-span-full flex justify-center">
+          <Button variant="destructive" onClick={onRefresh}>↻ Lijst verversen</Button>
+        </div>
+      )}
     </div>
-  )
+  );
 }

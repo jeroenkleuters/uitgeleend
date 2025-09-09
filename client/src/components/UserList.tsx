@@ -10,11 +10,11 @@ export default function UserList({ onSelect }: { onSelect: (id: string) => void 
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2">Selecteer gebruiker</h2>
       <select
         className="border p-1"
         onChange={e => onSelect(e.target.value)}
         defaultValue=""
+        name="users"
       >
         <option value="" disabled>
           Kies een gebruiker...
