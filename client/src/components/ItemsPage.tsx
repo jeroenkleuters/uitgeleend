@@ -33,9 +33,11 @@ const ItemsPage = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Formulier om nieuw item toe te voegen */}
+      <h2 className="text-xl font-semibold mb-3">Een item uitlenen</h2>
       <AddItem onItemAdded={fetchItems} />
 
       {/* Lijst met items */}
+      <h2 className="text-xl font-semibold mb-3">Overzicht items</h2>
       <ItemList />
     </div>
   )

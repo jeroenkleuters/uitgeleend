@@ -129,7 +129,7 @@ export default function AddItem({ onItemAdded }: { onItemAdded: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Uitgeleend aan</label>
+        <label className="block text-sm font-medium mb-1">Uitlenen aan</label>
 
         {!isAddingUser ? (
           <Select
@@ -169,7 +169,7 @@ export default function AddItem({ onItemAdded }: { onItemAdded: () => void }) {
             <div className="flex gap-2">
               <Button
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 onClick={() => {
                   setIsAddingUser(false);
                   setNewUserName("");
@@ -180,6 +180,7 @@ export default function AddItem({ onItemAdded }: { onItemAdded: () => void }) {
               </Button>
               <Button
                 type="button"
+                variant="destructive"
                 onClick={async () => {
                   // quick create user without submitting the whole form
                   if (!newUserName || !newUserEmail) {
@@ -211,7 +212,7 @@ export default function AddItem({ onItemAdded }: { onItemAdded: () => void }) {
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" variant="destructive" disabled={loading}>
           {loading ? "Bezig..." : "Toevoegen"}
         </Button>
       </div>

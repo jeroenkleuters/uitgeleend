@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { getItems, borrowItem, returnItem } from "@/api/api"
+import UserList from "./UserList"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Book, Music, Disc, Video, Shirt, Gamepad, Box } from "lucide-react"
+import { Book, Music, Disc, Video, Shirt, Gamepad, Box, Wrench, User } from "lucide-react"
 
 const typeIcons: Record<string, JSX.Element> = {
   boek: <Book className="w-5 h-5 text-blue-500" />,
@@ -10,18 +11,9 @@ const typeIcons: Record<string, JSX.Element> = {
   cd: <Disc className="w-5 h-5 text-pink-500" />,
   DVD: <Video className="w-5 h-5 text-red-500" />,
   kledingstuk: <Shirt className="w-5 h-5 text-green-500" />,
+  gereedschap: <Wrench className="w-5 h-5  text-blue-500" />,
   spel: <Gamepad className="w-5 h-5 text-yellow-500" />,
   anders: <Box className="w-5 h-5 text-gray-500" />,
-}
-
-const typeColors: Record<string, string> = {
-  boek: "bg-blue-100 text-blue-700",
-  lp: "bg-purple-100 text-purple-700",
-  cd: "bg-pink-100 text-pink-700",
-  DVD: "bg-red-100 text-red-700",
-  kledingstuk: "bg-green-100 text-green-700",
-  spel: "bg-yellow-100 text-yellow-700",
-  anders: "bg-gray-100 text-gray-700",
 }
 
 interface Item {
@@ -46,7 +38,7 @@ interface ItemListProps {
 export default function ItemList({ selectedUserId }: ItemListProps) {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
-  const [borrowerNames, setBorrowerNames] = useState<{ [key: string]: string }>({})
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, string>>({});
 
   const fetchItems = async () => {
     try {
@@ -64,11 +56,14 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
     fetchItems()
   }, [])
 
-  const handleBorrow = async (itemId: string) => {
-    if (!selectedUserId) return
-    await borrowItem(itemId, selectedUserId)
-    fetchItems()
+  const handleBorrow = async (itemId: string, userId: string) => {
+  try {
+    await borrowItem(itemId, userId);
+    fetchItems();
+  } catch (err) {
+    console.error("Error borrowing item", err);
   }
+};
 
   const handleReturn = async (itemId: string) => {
     await returnItem(itemId)
@@ -78,7 +73,7 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
   if (loading) return <p>⏳ Items laden...</p>
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-3 md:grid-cols-2">
       {items.map((item) => (
         <Card key={item._id}>
           <CardHeader>
@@ -90,11 +85,12 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
           <CardContent>
             {item.borrowedBy ? (
               <>
-                <p className="text-sm">Dit {item.description} is op &nbsp;
+                <p className="text-sm">
+                  Dit {item.description} is op{" "}
                   {item.borrowedAt
                     ? new Date(item.borrowedAt).toLocaleDateString()
                     : "onbekend"}
-                    <span> uitgeleend aan {item.borrowedBy.name || "onbekend"}</span>
+                  <span> uitgeleend aan {item.borrowedBy.name || "onbekend"}</span>
                 </p>
                 <Button
                   className="mt-2 gap-2"
@@ -103,24 +99,26 @@ export default function ItemList({ selectedUserId }: ItemListProps) {
                 >
                   Terugbrengen
                 </Button>
-                {/* <Button
-                  className="mt-2"
-                  variant="destructive"
-                  // onClick={() => handleReturn(item._id)}
-                >
-                  Terugvragen
-                </Button> */}
               </>
             ) : (
               <>
                 <p className="text-sm text-green-500">Beschikbaar</p>
-                <Button
-                  className="mt-2"
-                  disabled={!selectedUserId}
-                  onClick={() => handleBorrow(item._id)}
-                >
-                  Uitlenen
-                </Button>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <UserList
+                      onSelect={(id: string) =>
+                        setSelectedUsers((prev) => ({ ...prev, [item._id]: id }))
+                      }
+                    />
+
+                    <Button
+                      className="mt-2"
+                      variant="destructive"
+                      disabled={!selectedUsers[item._id]}
+                      onClick={() => handleBorrow(item._id, selectedUsers[item._id])}
+                    >
+                      Uitlenen
+                    </Button>
+                  </div>
               </>
             )}
           </CardContent>
