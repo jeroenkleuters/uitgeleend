@@ -2,6 +2,7 @@ import express from "express"
 import mongoose from "mongoose"
 import cors from "cors"
 import dotenv from "dotenv"
+import path from "path";
 
 import itemRoutes from "./routes/itemRoutes"
 import userRoutes from "./routes/userRoutes"
@@ -14,9 +15,14 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// Static folder voor foto’s
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 // Routes
 app.use("/api/items", itemRoutes)
 app.use("/api/users", userRoutes)
+
+
 
 // MongoDB connectie
 mongoose
