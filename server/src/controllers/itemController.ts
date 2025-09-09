@@ -30,16 +30,17 @@ export const getItemById = async (req: Request, res: Response) => {
 // ✅ Nieuw item toevoegen (met optioneel uitlenen)
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title, description, type, borrowedBy } = req.body;
+    const { title, description, rating, type, borrowedBy } = req.body;
 
-    if (!title || !type) {
+    if (!title || !type || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Titel en type zijn verplicht" });
     }
 
     const newItemData: any = {
       title,
-      type,
       description: description || "",
+      rating,
+      type,
     };
 
     // borrowedBy optioneel meegeven

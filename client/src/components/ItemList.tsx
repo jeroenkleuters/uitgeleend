@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import StarRating from "@/components/ui/StarRating";
 import { borrowItem, returnItem } from "../api/api";
 import {
   BookUser,
@@ -17,6 +18,7 @@ interface Item {
   _id: string;
   title: string;
   description?: string;
+  rating?: number;
   type: string;
   borrowedBy?: { _id: string; name: string; email: string } | null;
   borrowedAt?: string | null;
@@ -24,6 +26,7 @@ interface Item {
 
 interface ItemListProps {
   items: Item[];
+  disabled?: boolean;
   onRefresh?: () => Promise<void> | void;
 }
 
@@ -38,7 +41,7 @@ const typeIcons: Record<string, JSX.Element> = {
   anders: <FileQuestion className="inline w-6 h-6 mr-2" />,
 };
 
-export default function ItemList({ items, onRefresh }: ItemListProps) {
+export default function ItemList({ items, disabled = true, onRefresh }: ItemListProps) {
   const [loadingItem, setLoadingItem] = useState<string | null>(null);
 
   const handleBorrow = async (itemId: string) => {
@@ -86,6 +89,21 @@ export default function ItemList({ items, onRefresh }: ItemListProps) {
             {item.description && (
               <p className="text-sm text-gray-600">{item.description}</p>
             )}
+
+            <div className="flex items-center space-x-2">
+              <span>Rating:</span>
+              <StarRating
+                initialValue={item.rating || 0}  // toont huidige rating
+                onChange={(val) => {
+                  if (!disabled) {
+                    console.log(`Nieuwe rating voor ${item.title}: ${val}`);
+                    // later hier updateItem aanroepen
+                  }
+                }}
+                disabled={disabled} // passed down prop
+              />
+            </div>
+
             {item.borrowedBy ? (
               <>
                 <p className="text-sm">

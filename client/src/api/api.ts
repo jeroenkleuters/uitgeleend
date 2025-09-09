@@ -41,6 +41,7 @@ export const createItem = async (item: {
   title: string;
   description?: string;
   type: string;
+  rating: number;
   borrowedBy?: string | null;
 }) => {
   const res = await fetch(`${BASE_URL}/items`, {
