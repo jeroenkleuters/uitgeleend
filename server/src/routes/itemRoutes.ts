@@ -1,6 +1,7 @@
+import fs from "fs";
 import { Router } from "express";
 import multer from "multer";
-import path from "path";
+import path, {join}  from "path";
 import {
   getItems,
   getItemById,
@@ -43,13 +44,35 @@ router.post("/:id/photo", upload.single("photo"), async (req, res) => {
     const item = await Item.findById(itemId);
     if (!item) return res.status(404).json({ message: "Item not found" });
 
-    item.photo = `/uploads/${req.file?.filename}`;
+    item.photo = `uploads/${req.file?.filename}`;
     await item.save();
 
     res.json(item);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error uploading photo", error: err });
+  }
+});
+
+// Foto ophalen
+router.get("/:id/photo", async (req, res) => {
+  try {
+    const Item = (await import("../models/Item")).Item;
+    const item = await Item.findById(req.params.id);
+    if (!item || !item.photo) {
+      return res.status(404).json({ message: "Foto niet gevonden" });
+    }
+
+    const photoPath = join(process.cwd(), item.photo); 
+
+    if (!fs.existsSync(photoPath)) {
+      return res.status(404).json({ message: "Foto bestand niet gevonden" });
+    }
+
+    res.sendFile(photoPath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Fout bij ophalen foto", error: err });
   }
 });
 

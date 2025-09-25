@@ -3,9 +3,8 @@ import { Schema, model, Document, Types } from "mongoose"
 export interface IItem extends Document {
   title: string
   type: string
-  rating?: number // 1 t/m 5
   description: string
-  rating?: number
+  rating?: number // 1 t/m 5
   photo?: string
   borrowedBy: Types.ObjectId | null
   borrowedAt: Date | null

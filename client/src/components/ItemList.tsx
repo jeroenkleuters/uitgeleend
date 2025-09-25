@@ -19,6 +19,7 @@ interface Item {
   title: string;
   description?: string;
   rating?: number;
+  photo?: string;
   type: string;
   borrowedBy?: { _id: string; name: string; email: string } | null;
   borrowedAt?: string | null;
@@ -33,7 +34,7 @@ interface ItemListProps {
 const typeIcons: Record<string, JSX.Element> = {
   boek: <BookUser className="inline w-6 h-6 mr-2" />,
   cd: <Disc className="inline w-6 h-6 mr-2" />,
-  lp: <Disc className="inline w-6 h-6 mr-2" />, // ✅ LP = Disc
+  lp: <Disc className="inline w-6 h-6 mr-2" />,
   dvd: <Film className="inline w-6 h-6 mr-2" />,
   kledingstuk: <Shirt className="inline w-6 h-6 mr-2" />,
   spel: <Gamepad2 className="inline w-6 h-6 mr-2" />,
@@ -43,13 +44,13 @@ const typeIcons: Record<string, JSX.Element> = {
 
 export default function ItemList({ items, disabled = true, onRefresh }: ItemListProps) {
   const [loadingItem, setLoadingItem] = useState<string | null>(null);
+  const [popupPhoto, setPopupPhoto] = useState<string | null>(null);
 
   const handleBorrow = async (itemId: string) => {
     if (!confirm("Weet je zeker dat je dit item wilt uitlenen?")) return;
     setLoadingItem(itemId);
     try {
-      // ⚠️ tijdelijk hardcoded testUserId – later ComboBox toevoegen
-      const testUserId = "66f7d41a2d8b5e9e3c123456";
+      const testUserId = "66f7d41a2d8b5e9e3c123456"; // tijdelijk
       await borrowItem(itemId, testUserId);
       if (onRefresh) await onRefresh();
     } catch (err) {
@@ -78,69 +79,106 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {items.map((item) => (
-        <Card key={item._id} className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center align-left">
-              {typeIcons[item.type] || typeIcons["anders"]} {item.title} 
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {item.description && (
-              <p className="text-sm text-gray-600">{item.description}</p>
-            )}
+      {items.map((item) => {
+        // ⚠️ correct pad naar backend /uploads
+        const photoUrl = item.photo
+          ? `${import.meta.env.VITE_API_URL}/items/${item._id}/photo`
+          : null;
 
-            <div className="flex items-center space-x-2">
-              <span>Rating:</span>
-              <StarRating
-                initialValue={item.rating || 0}  // toont huidige rating
-                onChange={(val) => {
-                  if (!disabled) {
-                    console.log(`Nieuwe rating voor ${item.title}: ${val}`);
-                    // later hier updateItem aanroepen
-                  }
-                }}
-                disabled={disabled} // passed down prop
+        return (
+          <Card key={item._id} className="shadow-sm relative overflow-hidden">
+            {photoUrl && (
+              <img
+                src={photoUrl}
+                alt={item.title}
+                className="absolute top-2 right-2 w-[300px] h-[300px] object-cover cursor-pointer border rounded shadow"
+                onClick={() => setPopupPhoto(photoUrl)}
               />
-            </div>
-
-            {item.borrowedBy ? (
-              <>
-                <p className="text-sm">
-                  Uitgeleend aan{" "}
-                  <strong>{item.borrowedBy.name || "onbekend"}</strong>{" "}
-                  {item.borrowedAt &&
-                    `op ${new Date(item.borrowedAt).toLocaleDateString()}`}
-                </p>
-                <Button
-                  className="mt-2 gap-2"
-                  variant="destructive"
-                  disabled={loadingItem === item._id}
-                  onClick={() => handleReturn(item._id)}
-                >
-                  {loadingItem === item._id ? "Bezig..." : "Terugbrengen"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-green-500">Beschikbaar</p>
-                <Button
-                  className="mt-2"
-                  variant="destructive"
-                  disabled={loadingItem === item._id}
-                  onClick={() => handleBorrow(item._id)}
-                >
-                  {loadingItem === item._id ? "Bezig..." : "Uitlenen"}
-                </Button>
-              </>
             )}
-          </CardContent>
-        </Card>
-      ))}
+
+            <CardHeader>
+              <CardTitle className="flex items-center align-left">
+                {typeIcons[item.type] || typeIcons["anders"]} {item.title}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {item.description && (
+                <p className="text-sm text-gray-600">{item.description}</p>
+              )}
+
+              <div className="flex items-center space-x-2 mt-1">
+                <span>Rating:</span>
+                <StarRating
+                  initialValue={item.rating || 0}
+                  onChange={(val) => {
+                    if (!disabled) {
+                      console.log(`Nieuwe rating voor ${item.title}: ${val}`);
+                    }
+                  }}
+                  disabled={disabled}
+                />
+              </div>
+
+              {item.borrowedBy ? (
+                <>
+                  <p className="text-sm mt-2">
+                    Uitgeleend aan <strong>{item.borrowedBy.name || "onbekend"}</strong>{" "}
+                    {item.borrowedAt &&
+                      `op ${new Date(item.borrowedAt).toLocaleDateString()}`}
+                  </p>
+                  <Button
+                    className="mt-2 gap-2"
+                    variant="destructive"
+                    disabled={loadingItem === item._id}
+                    onClick={() => handleReturn(item._id)}
+                  >
+                    {loadingItem === item._id ? "Bezig..." : "Terugbrengen"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-green-500 mt-2">Beschikbaar</p>
+                  <Button
+                    className="mt-2"
+                    variant="destructive"
+                    disabled={loadingItem === item._id}
+                    onClick={() => handleBorrow(item._id)}
+                  >
+                    {loadingItem === item._id ? "Bezig..." : "Uitlenen"}
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
 
       {onRefresh && (
-        <div className="col-span-full flex justify-center">
-          <Button variant="destructive" onClick={onRefresh}>↻ Lijst verversen</Button>
+        <div className="col-span-full flex justify-center mt-4">
+          <Button variant="destructive" onClick={onRefresh}>
+            ↻ Lijst verversen
+          </Button>
+        </div>
+      )}
+
+      {/* Photo popup */}
+      {popupPhoto && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative">
+            <img
+              src={popupPhoto}
+              alt="Grote weergave"
+              className="max-w-[90vw] max-h-[90vh] object-contain"
+            />
+            <Button
+              className="absolute top-2 right-2"
+              variant="destructive"
+              onClick={() => setPopupPhoto(null)}
+            >
+              Sluiten
+            </Button>
+          </div>
         </div>
       )}
     </div>

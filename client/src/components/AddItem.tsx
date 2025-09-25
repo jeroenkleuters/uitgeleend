@@ -1,14 +1,11 @@
 // client/src/components/AddItem.tsx
 import { useState } from "react";
-import { createItem } from "../api/api"; // zelfde api as in ItemsPage
+import { createItem } from "../api/api";
 import UserSelect from "./UserSelect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StarRating from "@/components/ui/StarRating";
 
-/**
- * onItemAdded kan een async functie zijn (zoals fetchItems in ItemsPage)
- */
 export default function AddItem({
   onItemAdded,
 }: {
@@ -16,9 +13,12 @@ export default function AddItem({
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState(""); // verplicht: controle bij submit
-  const [rating, setRating] = useState(0); // hier sla je rating op
+  const [type, setType] = useState("");
+  const [rating, setRating] = useState(0);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [popupPhoto, setPopupPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const resetForm = () => {
@@ -27,11 +27,12 @@ export default function AddItem({
     setType("");
     setRating(0);
     setSelectedUser(null);
+    setPhotoFile(null);
+    setPhotoPreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!title || !type) {
       alert("Titel en type zijn verplicht.");
       return;
@@ -40,7 +41,8 @@ export default function AddItem({
     setLoading(true);
 
     try {
-      await createItem({
+      // 1️⃣ Maak item aan zonder foto
+      const item = await createItem({
         title,
         description,
         type,
@@ -48,9 +50,18 @@ export default function AddItem({
         borrowedBy: selectedUser ?? null,
       });
 
-      // roep callback aan zodat parent (ItemsPage) de lijst kan verversen
-      if (onItemAdded) await onItemAdded();
+      // 2️⃣ Upload foto als die geselecteerd is
+      if (photoFile) {
+        const formData = new FormData();
+        formData.append("photo", photoFile);
 
+        await fetch(`${import.meta.env.VITE_API_URL}/items/${item._id}/photo`, {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      if (onItemAdded) await onItemAdded();
       resetForm();
     } catch (err) {
       console.error("Fout bij maken item:", err);
@@ -61,8 +72,37 @@ export default function AddItem({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-card rounded">
+    <form onSubmit={handleSubmit} className="relative space-y-4 p-4 bg-card rounded">
       <h3 className="text-lg font-semibold">Nieuw item</h3>
+
+      {/* Foto preview rechtsboven */}
+      {photoPreview && (
+        <img
+          src={photoPreview}
+          alt="Preview"
+          className="absolute top-2 right-2 w-[150px] h-[150px] object-cover border rounded shadow cursor-pointer"
+          onClick={() => setPopupPhoto(photoPreview)}
+        />
+      )}
+
+      {popupPhoto && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative">
+            <img
+              src={popupPhoto}
+              alt="Grote weergave"
+              className="max-w-[90vw] max-h-[90vh] object-contain"
+            />
+            <Button
+              className="absolute top-2 right-2"
+              variant="destructive"
+              onClick={() => setPopupPhoto(null)}
+            >
+              Sluiten
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Titel</label>
@@ -92,7 +132,6 @@ export default function AddItem({
         />
       </div>
 
-
       <div>
         <label className="block text-sm font-medium mb-1">Type</label>
         <select
@@ -115,7 +154,27 @@ export default function AddItem({
 
       <div>
         <label className="block text-sm font-medium mb-1">Uitgeleend aan</label>
-        <UserSelect value={selectedUser} onChange={(id) => setSelectedUser(id)} />
+        <UserSelect
+          value={selectedUser}
+          onChange={(id) => setSelectedUser(id)}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Foto</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setPhotoFile(file);
+            if (file) {
+              setPhotoPreview(URL.createObjectURL(file));
+            } else {
+              setPhotoPreview(null);
+            }
+          }}
+        />
       </div>
 
       <div className="flex justify-end">
