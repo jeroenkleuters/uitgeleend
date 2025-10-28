@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StarRating from "@/components/ui/StarRating";
-import { borrowItem, returnItem } from "../api/api";
+import { borrowItem, deleteItem, returnItem } from "../api/api";
 import {
   BookUser,
   Disc,
@@ -71,6 +71,19 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
     } finally {
       setLoadingItem(null);
     }
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    if (!confirm("Weet je zeker dat je dit item wilt verwijderen?")) return;
+    setLoadingItem(itemId); 
+    try {
+      await deleteItem(itemId); 
+      if (onRefresh) await onRefresh();
+    } catch (err) {
+      console.error("Error deleting item:", err);
+    } finally {
+      setLoadingItem(null);
+    } 
   };
 
   if (!items || items.length === 0) {
@@ -141,6 +154,7 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
                   <p className="text-sm text-green-500 mt-2">Beschikbaar</p>
                   <Button
                     className="mt-2"
+                    id={item._id}
                     variant="destructive"
                     disabled={loadingItem === item._id}
                     onClick={() => handleBorrow(item._id)}
@@ -149,6 +163,14 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
                   </Button>
                 </>
               )}
+              <Button
+                className="mt-2 ml-2"
+                variant="destructive"
+                disabled={loadingItem === item._id}
+                onClick={() => handleDeleteItem(item._id)}
+                 
+              >                {loadingItem === item._id ? "Bezig..." : "Verwijderen"}
+              </Button>
             </CardContent>
           </Card>
         );
