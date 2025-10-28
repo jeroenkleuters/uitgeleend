@@ -91,7 +91,7 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
               <img
                 src={photoUrl}
                 alt={item.title}
-                className="absolute top-2 right-2 w-[300px] h-[300px] object-cover cursor-pointer border rounded shadow"
+                className="absolute top-2 right-2 w-[100px] h-[100px] object-cover cursor-pointer border rounded shadow"
                 onClick={() => setPopupPhoto(photoUrl)}
               />
             )}
