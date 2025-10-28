@@ -34,6 +34,18 @@ export const getItems = async () => {
 };
 
 /**
+ * 
+ * @param itemId 
+ * @returns 
+ */
+export const deleteItem = async (itemId: string) => {
+  const res = await fetch(`${BASE_URL}/items/${itemId}`, {
+    method: "DELETE",
+  });
+  return handleRes(res);
+}
+
+/**
  * createItem payload: { title, description?, type, borrowedBy? }
  * borrowedBy is optional (userId) — backend zal borrowedAt vullen als borrowedBy is gegeven
  */
