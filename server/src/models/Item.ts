@@ -9,6 +9,7 @@ export interface IItem extends Document {
   amound?: number
   borrowedBy: Types.ObjectId | null
   borrowedAt: Date | null
+  borrowedUntill: Date | null
 }
 
 const itemSchema = new Schema<IItem>(
@@ -25,6 +26,7 @@ const itemSchema = new Schema<IItem>(
     amound: { type: Number, default: null },
     borrowedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
     borrowedAt: { type: Date, default: null },
+    borrowedUntill: { type: Date, default: null },
   },
   { timestamps: true }
 )

@@ -30,7 +30,7 @@ export const getItemById = async (req: Request, res: Response) => {
 // ✅ Nieuw item toevoegen (met optioneel uitlenen)
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title, description, rating, type, amound, borrowedBy } = req.body;
+    const { title, description, rating, type, amound, borrowedBy, borrowedUntill } = req.body;
 
     if (!title || !type || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Titel en type zijn verplicht" });
@@ -57,6 +57,11 @@ export const createItem = async (req: Request, res: Response) => {
       newItemData.borrowedBy = borrowedBy;
       newItemData.borrowedAt = new Date();
     }
+    
+    // borrowedUntill optioneel meegeven  
+    if (borrowedUntill) {
+      newItemData.borrowedUntill = borrowedUntill;
+    } 
 
     const item = new Item(newItemData);
     await item.save();
