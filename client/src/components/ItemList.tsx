@@ -12,6 +12,7 @@ import {
   FileQuestion,
   Film,
   Wrench,
+  Currency,
 } from "lucide-react";
 
 interface Item {
@@ -21,6 +22,7 @@ interface Item {
   rating?: number;
   photo?: string;
   type: string;
+  amound?: number;
   borrowedBy?: { _id: string; name: string; email: string } | null;
   borrowedAt?: string | null;
 }
@@ -39,6 +41,7 @@ const typeIcons: Record<string, JSX.Element> = {
   kledingstuk: <Shirt className="inline w-6 h-6 mr-2" />,
   spel: <Gamepad2 className="inline w-6 h-6 mr-2" />,
   gereedschap: <Wrench className="inline w-6 h-6 mr-2" />,
+  geld: <Currency className="inline w-6 h-6 mr-2" />,
   anders: <FileQuestion className="inline w-6 h-6 mr-2" />,
 };
 
@@ -118,6 +121,9 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
             <CardContent>
               {item.description && (
                 <p className="text-sm text-gray-600">{item.description}</p>
+              )}
+              {item.type === 'geld' && (
+                <p className="text-sm text-gray-600">{item.amound}</p>
               )}
 
               <div className="flex items-center space-x-2 mt-1">

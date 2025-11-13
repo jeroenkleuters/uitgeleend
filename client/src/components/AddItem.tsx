@@ -15,6 +15,7 @@ export default function AddItem({
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
   const [rating, setRating] = useState(0);
+  const [amound, setAmound] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export default function AddItem({
     setDescription("");
     setType("");
     setRating(0);
+    setAmound(null);
     setSelectedUser(null);
     setPhotoFile(null);
     setPhotoPreview(null);
@@ -42,13 +44,14 @@ export default function AddItem({
 
     try {
       // 1️⃣ Maak item aan zonder foto
-      const item = await createItem({
-        title,
-        description,
-        type,
-        rating,
-        borrowedBy: selectedUser ?? null,
-      });
+            const item = await createItem({
+              title,
+              description,
+              type,
+              rating,
+              amound: type === "geld" ? amound || undefined : undefined,
+              borrowedBy: selectedUser ?? null,
+            });
 
       // 2️⃣ Upload foto als die geselecteerd is
       if (photoFile) {
@@ -148,10 +151,24 @@ export default function AddItem({
           <option value="kledingstuk">Kledingstuk</option>
           <option value="spel">Spel</option>
           <option value="gereedschap">Gereedschap</option>
+          <option value="geld">Geld</option>
           <option value="anders">Anders</option>
         </select>
       </div>
 
+      {type === "geld" && (
+        <div>
+          <label className="block text-sm font-medium mb-1">Amound</label>
+          <Input
+            type="number"
+            value={amound !== null ? amound : ""} 
+            onChange={(e) => setAmound(Number(e.target.value))}
+            placeholder="Bijv. 50"
+            required
+            min={0}
+          />
+        </div>
+      )}  
       <div>
         <label className="block text-sm font-medium mb-1">Uitgeleend aan</label>
         <UserSelect
