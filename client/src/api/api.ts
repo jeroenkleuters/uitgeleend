@@ -53,6 +53,7 @@ export const createItem = async (item: {
   title: string;
   description?: string;
   type: string;
+  amound?: number;
   rating: number;
   borrowedBy?: string | null;
 }) => {

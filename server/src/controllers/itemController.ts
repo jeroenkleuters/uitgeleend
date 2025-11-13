@@ -30,7 +30,7 @@ export const getItemById = async (req: Request, res: Response) => {
 // ✅ Nieuw item toevoegen (met optioneel uitlenen)
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { title, description, rating, type, borrowedBy } = req.body;
+    const { title, description, rating, type, amound, borrowedBy } = req.body;
 
     if (!title || !type || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Titel en type zijn verplicht" });
@@ -42,6 +42,14 @@ export const createItem = async (req: Request, res: Response) => {
       rating,
       type,
     };
+
+    // Type geld moet amound hebben
+    if (type === "geld") {
+      const { amound } = req.body;
+      if (!amound || amound <= 0) {
+        return res.status(400).json({ message: "Amound is verplicht voor geld" });
+      }
+    }  
 
     // borrowedBy optioneel meegeven
     if (borrowedBy) {

@@ -6,6 +6,7 @@ export interface IItem extends Document {
   description: string
   rating?: number // 1 t/m 5
   photo?: string
+  amound?: number
   borrowedBy: Types.ObjectId | null
   borrowedAt: Date | null
 }
@@ -19,8 +20,9 @@ const itemSchema = new Schema<IItem>(
     type: {
       type: String,
       required: true,
-      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel", "gereedschap", "anders"], // dropdown opties
+      enum: ["boek", "lp", "cd", "dvd", "kledingstuk", "spel", "gereedschap","geld", "anders"], // dropdown opties
     },
+    amound: { type: Number, default: null },
     borrowedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
     borrowedAt: { type: Date, default: null },
   },
