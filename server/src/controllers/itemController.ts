@@ -45,9 +45,10 @@ export const createItem = async (req: Request, res: Response) => {
 
     // Type geld moet amound hebben
     if (type === "geld") {
-      const { amound } = req.body;
       if (!amound || amound <= 0) {
         return res.status(400).json({ message: "Amound is verplicht voor geld" });
+      } else {
+        newItemData.amound = amound;
       }
     }  
 
