@@ -14,7 +14,7 @@ export default function AddItem({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(1);
   const [amound, setAmound] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -26,7 +26,7 @@ export default function AddItem({
     setTitle("");
     setDescription("");
     setType("");
-    setRating(0);
+    setRating(1);
     setAmound(null);
     setSelectedUser(null);
     setPhotoFile(null);
