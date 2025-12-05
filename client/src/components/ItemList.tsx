@@ -123,7 +123,9 @@ export default function ItemList({ items, disabled = true, onRefresh }: ItemList
                 <p className="text-sm text-gray-600">{item.description}</p>
               )}
               {item.type === 'geld' && (
-                <p className="text-sm text-gray-600">&euro; {item.amound}</p>
+                <p className="text-sm text-gray-600">&euro; {item.amound
+                  
+                }</p>
               )}
 
               <div className="flex items-center space-x-2 mt-1">

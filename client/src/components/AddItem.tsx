@@ -15,7 +15,7 @@ export default function AddItem({
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
   const [rating, setRating] = useState(1);
-  const [amound, setAmound] = useState<number | null>(null);
+  const [amound, setamound] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function AddItem({
     setDescription("");
     setType("");
     setRating(1);
-    setAmound(null);
+    setamound(null);
     setSelectedUser(null);
     setPhotoFile(null);
     setPhotoPreview(null);
@@ -158,11 +158,11 @@ export default function AddItem({
 
       {type === "geld" && (
         <div>
-          <label className="block text-sm font-medium mb-1">Amound</label>
+          <label className="block text-sm font-medium mb-1">Bedrag</label>
           <Input
             type="number"
             value={amound !== null ? amound : ""} 
-            onChange={(e) => setAmound(Number(e.target.value))}
+            onChange={(e) => setamound(Number(e.target.value))}
             placeholder="Bijv. 50"
             required
             min={0}
